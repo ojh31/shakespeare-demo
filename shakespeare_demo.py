@@ -189,6 +189,7 @@ demo.launch()
 # %%
 '''
 FIXME:
+* build a docker image (maybe switch to basic.yaml?)
 * deploy to heroku
 * link from github home
 '''
