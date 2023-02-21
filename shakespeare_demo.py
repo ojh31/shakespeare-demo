@@ -147,9 +147,13 @@ def safe_generate(
         top_k: int = 20,
     ) -> str:
     try:
-        return generate(
-            text, max_tokens=max_tokens, temperature=temperature, top_k=top_k
+        raw = generate(
+            text, max_tokens=max_tokens, temperature=temperature, top_k=top_k,
         )
+        match = re.match(r"(?P<start>\D*)\d+\n", raw)
+        if match is None:
+            return raw
+        return match.group('start')
     except KeyError as e:
         return f"I'm sorry, {str(e)} is not in Shakespeare's vocabulary"
 #%%
@@ -159,7 +163,7 @@ examples = [
     ["How I love thee"],
 ]
 #%%
-print(safe_generate(examples[-1]))
+print(safe_generate('How I love thee'))
 #%%
 
 demo = gr.Interface(
@@ -185,7 +189,6 @@ demo.launch()
 # %%
 '''
 FIXME:
-* cut everything after sonnet break
 * deploy to heroku
 * link from github home
 '''
