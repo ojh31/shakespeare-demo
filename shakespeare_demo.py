@@ -128,26 +128,64 @@ model = transformer_replication.DecoderOnlyTransformer(base_config)
 model.load_state_dict(state_dict)
 
 #%%
-def generate(text: str) -> str:
+def generate(
+        text: str, max_tokens: int, temperature: float, 
+        top_k: int,
+) -> str:
     return sampling.sample_tokens(
-        model, shakespeare, text, 
-        max_tokens_generated=300, temperature=1.0, top_k=10,
+        model, 
+        shakespeare, 
+        text, 
+        max_tokens_generated=max_tokens, 
+        temperature=temperature, 
+        top_k=top_k,
     )
+
+#%%
+def safe_generate(
+        text: str, max_tokens: int = 300, temperature: float = 1.0, 
+        top_k: int = 20,
+    ) -> str:
+    try:
+        return generate(
+            text, max_tokens=max_tokens, temperature=temperature, top_k=top_k
+        )
+    except KeyError as e:
+        return f"I'm sorry, {str(e)} is not in Shakespeare's vocabulary"
 #%%
 examples = [
-    [" I sang a beautiful song "],
-    [" Oh how I love thee "],
+    ["I sang a beautiful song"],
+    ["To be free is to"],
+    ["How I love thee"],
 ]
 #%%
-generate(examples[0])
+print(safe_generate(examples[-1]))
 #%%
 
 demo = gr.Interface(
-    fn=generate,
-    inputs=gr.components.Textbox(lines=5, label="Input Text"),
+    fn=safe_generate,
+    inputs=[
+        gr.components.Textbox(lines=5, label="Input Text"),
+        gr.components.Slider(
+            label='max tokens generated', minimum=1, maximum=1000, 
+            value=300, step=1,
+        ),
+        gr.components.Slider(
+            label='temperature', minimum=0, maximum=2, value=1, step=0.1,
+        ),
+        gr.components.Slider(
+            label='top_k', minimum=1, maximum=100, value=10, step=1,
+        ),
+    ],
     outputs=gr.components.Textbox(label="Generated Text"),
     examples=examples
 )
 #%%
 demo.launch()
 # %%
+'''
+FIXME:
+* cut everything after sonnet break
+* deploy to heroku
+* link from github home
+'''
