@@ -1,0 +1,10 @@
+__pycache__
+*/__pycache__/*
+*~
+*/wandb/*
+data/
+*/data/*
+*.pt
+.vscode
+*:Zone.Identifier
+*.DS_Store
